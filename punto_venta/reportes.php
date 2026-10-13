@@ -823,22 +823,29 @@ $vendedores = $conexion->query("SELECT id, nombre FROM usuarios WHERE rol IN ('a
                         
                         <div style="margin-bottom: 0.5rem;" id="div_billete_usd">
                             <label style="font-size:0.8rem; font-weight:bold; color: #334155;">Billete Recibido ($)</label>
-                            <input type="number" step="0.01" name="billete_recibido_usd" id="edit_billete_usd" style="width: 100%; padding: 0.5rem; border: 1px solid var(--borde); border-radius: 4px;" placeholder="Ej: 100">
+                            <input type="number" step="0.01" name="billete_recibido_usd" id="edit_billete_usd" class="calc-vuelto-edicion" oninput="calcularVueltoEdicion()" onkeyup="calcularVueltoEdicion()" style="width: 100%; padding: 0.5rem; border: 1px solid var(--borde); border-radius: 4px;" placeholder="Ej: 100">
                         </div>
 
                         <div style="margin-bottom: 0.5rem; display:none;" id="div_billete_bs">
                             <label style="font-size:0.8rem; font-weight:bold; color: #334155;">Monto Recibido (Bs)</label>
-                            <input type="number" step="0.01" name="billete_recibido_bs" id="edit_billete_bs" style="width: 100%; padding: 0.5rem; border: 1px solid var(--borde); border-radius: 4px;" placeholder="Ej: 5000">
+                            <input type="number" step="0.01" name="billete_recibido_bs" id="edit_billete_bs" class="calc-vuelto-edicion" oninput="calcularVueltoEdicion()" onkeyup="calcularVueltoEdicion()" style="width: 100%; padding: 0.5rem; border: 1px solid var(--borde); border-radius: 4px;" placeholder="Ej: 5000">
                         </div>
                         
+                        <!-- CÁLCULO EN TIEMPO REAL DEL VUELTO REQUERIDO -->
+                        <div id="vuelto_requerido_box" style="background: #e0f2fe; border: 1px dashed #7dd3fc; padding: 0.8rem; border-radius: 4px; text-align: center; margin-bottom: 1rem; display: none;">
+                            <span style="font-size: 0.85rem; color: #0284c7; font-weight: bold;">El sistema calcula que debes devolver:</span><br>
+                            <span id="label_vuelto_req" style="font-size: 1.4rem; font-weight: bold; color: #0369a1;">$0.00</span><br>
+                            <span id="label_vuelto_req_bs" style="font-size: 0.95rem; font-weight: bold; color: #0284c7;">(0,00 Bs)</span>
+                        </div>
+
                         <div style="display: flex; gap: 10px; margin-bottom: 0.5rem;">
                             <div style="flex:1;">
                                 <label style="font-size:0.8rem; font-weight:bold; color: #334155;">Vuelto Dado ($)</label>
-                                <input type="number" step="0.01" name="vuelto_entregado_usd" id="edit_vuelto_usd" style="width: 100%; padding: 0.5rem; border: 1px solid var(--borde); border-radius: 4px;" placeholder="Ej: 0">
+                                <input type="number" step="0.01" name="vuelto_entregado_usd" id="edit_vuelto_usd" class="calc-vuelto-edicion" oninput="calcularVueltoEdicion()" onkeyup="calcularVueltoEdicion()" style="width: 100%; padding: 0.5rem; border: 1px solid var(--borde); border-radius: 4px;" placeholder="Ej: 0">
                             </div>
                             <div style="flex:1;">
                                 <label style="font-size:0.8rem; font-weight:bold; color: #334155;">Vuelto Dado (Bs)</label>
-                                <input type="number" step="0.01" name="vuelto_entregado_bs" id="edit_vuelto_bs" style="width: 100%; padding: 0.5rem; border: 1px solid var(--borde); border-radius: 4px;" placeholder="Ej: 9">
+                                <input type="number" step="0.01" name="vuelto_entregado_bs" id="edit_vuelto_bs" class="calc-vuelto-edicion" oninput="calcularVueltoEdicion()" onkeyup="calcularVueltoEdicion()" style="width: 100%; padding: 0.5rem; border: 1px solid var(--borde); border-radius: 4px;" placeholder="Ej: 0">
                             </div>
                         </div>
                         
@@ -849,6 +856,13 @@ $vendedores = $conexion->query("SELECT id, nombre FROM usuarios WHERE rol IN ('a
                                 <option value="efectivo_bs">💵 Caja: Efectivo Bs</option>
                                 <option value="pago_movil">📱 Banco: Pago Móvil</option>
                             </select>
+                        </div>
+
+                        <!-- MENSAJE DE CUADRE MATEMÁTICO -->
+                        <div id="info_cuadre_vuelto_edicion" style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px dashed #4ade80; display: none;">
+                            <div style="text-align: center; font-size: 0.95rem;">
+                                <span id="txt_vuelto_edicion_mensaje" style="color: #64748b; font-weight: bold;">Ingresa el billete para calcular vuelto...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -883,7 +897,7 @@ $vendedores = $conexion->query("SELECT id, nombre FROM usuarios WHERE rol IN ('a
         </div>
     </div>
 
-    <!-- Modales de Gasto e Ingreso omitidos por limpieza visual -->
+    <!-- Modales de Gasto e Ingreso -->
     <div id="modalIngreso" class="modal-overlay">
         <div class="modal-caja" style="border-top: 5px solid #10b981;">
             <h2 style="margin-bottom: 1rem; color: var(--texto-principal);">💰 Ingresar Fondo de Caja</h2>
@@ -980,6 +994,87 @@ $vendedores = $conexion->query("SELECT id, nombre FROM usuarios WHERE rol IN ('a
         </div>
     </div>
 
+    <!-- TICKET DE IMPRESIÓN ACTUALIZADO -->
+    <div id="ticket-print">
+        <h2>Hato Obispo</h2>
+        <h3>REPORTE DE CAJA</h3>
+        <p class="ticket-text-center">Impresión: <?php echo date('d/m/Y h:i A'); ?></p>
+        <p class="ticket-text-center">Período: <?php echo date('d/m/y', strtotime($filtro_inicio)); ?> - <?php echo date('d/m/y', strtotime($filtro_fin)); ?></p>
+        
+        <div class="ticket-divider"></div>
+        
+        <p class="ticket-bold">RESUMEN DE OPERACIONES</p>
+        <div class="ticket-flex" style="color: #10b981;">
+            <span>Fondo de Caja (Inicio):</span>
+            <span>+$<?php echo number_format($total_ingresos_extra_usd, 2); ?></span>
+        </div>
+        <div class="ticket-flex">
+            <span>Ventas Contado:</span>
+            <span>$<?php echo number_format($t_ventas_usd, 2); ?></span>
+        </div>
+        <div class="ticket-flex">
+            <span>Abonos Créditos:</span>
+            <span>$<?php echo number_format($t_abonos_usd, 2); ?></span>
+        </div>
+        <div class="ticket-flex" style="color: #444;">
+            <span>Gastos Extra:</span>
+            <span>-$<?php echo number_format($total_gastos_usd, 2); ?></span>
+        </div>
+        
+        <div class="ticket-divider"></div>
+        
+        <p class="ticket-bold" style="margin-top: 10px;">DESGLOSE POR CAJA / MÉTODO</p>
+        <table class="ticket-table">
+            <?php foreach($caja as $key => $datos): ?>
+                <?php if($datos['usd'] != 0 || $datos['bs'] != 0): ?>
+                <tr>
+                    <td>
+                        <?php echo $datos['nombre']; ?><br>
+                        <?php if($datos['tipo'] == 'bs'): ?>
+                            <span style="font-size: 11px;">Ref: $<?php echo number_format($datos['usd'], 2); ?></span>
+                        <?php else: ?>
+                            <span style="font-size: 11px;"><?php echo number_format($datos['bs'], 2, ',', '.'); ?> Bs</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if($datos['tipo'] == 'bs'): ?>
+                            <?php echo number_format($datos['bs'], 2, ',', '.'); ?> Bs
+                        <?php else: ?>
+                            $<?php echo number_format($datos['usd'], 2); ?>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </table>
+
+        <div class="ticket-divider"></div>
+
+        <p class="ticket-bold" style="font-size: 14px; text-align: center; margin-top: 10px;">TOTAL NETO EN CAJA</p>
+        <div class="ticket-flex ticket-bold" style="font-size: 14px;">
+            <span>BOLÍVARES:</span>
+            <span><?php echo number_format($suma_total_bolivares, 2, ',', '.'); ?> Bs</span>
+        </div>
+        <div class="ticket-flex ticket-bold" style="font-size: 14px; margin-bottom: 10px;">
+            <span>DÓLARES:</span>
+            <span>$<?php echo number_format($suma_total_dolares, 2); ?></span>
+        </div>
+        
+        <div class="ticket-flex ticket-bold" style="font-size: 14px; margin-bottom: 30px; color: #555;">
+            <span>TRUEQUES (Especie):</span>
+            <span>$<?php echo number_format($suma_total_trueques, 2); ?></span>
+        </div>
+
+        <div class="ticket-text-center" style="margin-top: 40px;">
+            <p>_______________________</p>
+            <p>Firma Cajero</p>
+            <p style="margin-top: 30px;">_______________________</p>
+            <p>Firma Gerente</p>
+            <p style="font-size: 10px; margin-top: 20px;">Reporte Generado por Mi Negocio POS</p>
+            <p>--- FIN DE REPORTE ---</p>
+        </div>
+    </div>
+
     <script>
         function abrirEditarVenta(mov) {
             document.getElementById('edit_venta_id').value = mov.ticket_id;
@@ -1060,12 +1155,13 @@ $vendedores = $conexion->query("SELECT id, nombre FROM usuarios WHERE rol IN ('a
                         document.getElementById('div_billete_usd').style.display = 'block';
                         document.getElementById('div_billete_bs').style.display = 'none';
                     }
+                    calcularVueltoEdicion(); // Validamos automticamente
                 } else {
                     if(cajaVueltos) cajaVueltos.style.display = 'none';
+                    document.getElementById('btn_guardar_edicion').disabled = false;
+                    document.getElementById('btn_guardar_edicion').style.opacity = '1';
                 }
                 
-                document.getElementById('btn_guardar_edicion').disabled = false;
-                document.getElementById('btn_guardar_edicion').style.opacity = '1';
                 document.getElementById('edit_mix_diferencia').innerText = "Falta: 0,00 Bs";
             }
         }
@@ -1104,6 +1200,94 @@ $vendedores = $conexion->query("SELECT id, nombre FROM usuarios WHERE rol IN ('a
                 labelDif.innerText = "¡Cuadre Exacto! ✅";
                 labelDif.style.color = '#10b981';
                 btnSubmit.disabled = false; btnSubmit.style.opacity = '1';
+            }
+        }
+
+        // NUEVA FUNCIÓN: CALCULADORA DE VUELTO EN EDICIÓN
+        function calcularVueltoEdicion() {
+            let select = document.getElementById('edit_venta_metodo').value;
+            if (select !== 'efectivo_usd' && select !== 'efectivo_bs') return;
+
+            let btnSubmit = document.getElementById('btn_guardar_edicion');
+            let tasa = parseFloat(document.getElementById('edit_venta_tasa').value);
+            let totalBs = parseFloat(document.getElementById('edit_venta_total_req').value);
+            let totalUsd = totalBs / tasa;
+            
+            let recibidoUsd = 0; let recibidoBs = 0;
+            let vueltoRequeridoUsd = 0; let vueltoRequeridoBs = 0;
+
+            if (select === 'efectivo_usd') {
+                recibidoUsd = parseFloat(document.getElementById('edit_billete_usd').value) || 0;
+                vueltoRequeridoUsd = recibidoUsd - totalUsd;
+                vueltoRequeridoBs = vueltoRequeridoUsd * tasa;
+            } else {
+                recibidoBs = parseFloat(document.getElementById('edit_billete_bs').value) || 0;
+                vueltoRequeridoBs = recibidoBs - totalBs;
+                vueltoRequeridoUsd = vueltoRequeridoBs / tasa;
+            }
+
+            let mensajeBox = document.getElementById('txt_vuelto_edicion_mensaje');
+            let vueltoReqBox = document.getElementById('vuelto_requerido_box');
+            let labelVueltoReq = document.getElementById('label_vuelto_req');
+            let labelVueltoReqBs = document.getElementById('label_vuelto_req_bs');
+
+            document.getElementById('info_cuadre_vuelto_edicion').style.display = 'block';
+
+            // Mostrar visualmente cuánto debe devolver el cajero
+            if (vueltoRequeridoUsd > 0.01) {
+                vueltoReqBox.style.display = 'block';
+                labelVueltoReq.innerText = `$${vueltoRequeridoUsd.toFixed(2)}`;
+                labelVueltoReqBs.innerText = `(o ${vueltoRequeridoBs.toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2})} Bs)`;
+            } else {
+                vueltoReqBox.style.display = 'none';
+            }
+
+            // 1. Validar que el billete cubra la factura
+            if ((select === 'efectivo_usd' && recibidoUsd > 0 && recibidoUsd < totalUsd - 0.01) || 
+                (select === 'efectivo_bs' && recibidoBs > 0 && recibidoBs < totalBs - 0.5)) {
+                mensajeBox.innerHTML = "❌ El billete <b>NO CUBRE</b> el total de la factura.";
+                mensajeBox.style.color = '#ef4444';
+                btnSubmit.disabled = true; btnSubmit.style.opacity = '0.5';
+                return;
+            }
+
+            // 2. Si dejaron todo en blanco
+            if ((select === 'efectivo_usd' && recibidoUsd === 0) || (select === 'efectivo_bs' && recibidoBs === 0)) {
+                mensajeBox.innerHTML = "Ingresa el billete para calcular tu vuelto.";
+                mensajeBox.style.color = '#64748b';
+                btnSubmit.disabled = false; btnSubmit.style.opacity = '1';
+                return;
+            }
+
+            // 3. Procesar los vueltos declarados por el usuario en las casillas
+            let vUsd = parseFloat(document.getElementById('edit_vuelto_usd').value) || 0;
+            let vBs = parseFloat(document.getElementById('edit_vuelto_bs').value) || 0;
+            
+            let totalDadoUsd = vUsd + (vBs / tasa);
+            let diferenciaUsd = vueltoRequeridoUsd - totalDadoUsd;
+            let diferenciaBs = diferenciaUsd * tasa;
+
+            // 4. Lógica de Cuadre estricto para habilitar el botón
+            if (vueltoRequeridoUsd <= 0.01) {
+                mensajeBox.innerHTML = "✅ Pago exacto. No requiere dar vuelto.";
+                mensajeBox.style.color = '#10b981';
+                btnSubmit.disabled = false; btnSubmit.style.opacity = '1';
+            } else {
+                if (Math.abs(diferenciaUsd) < 0.05) {
+                    mensajeBox.innerHTML = "✅ <b>Cuadre Perfecto</b>. El vuelto que declaraste está justificado.";
+                    mensajeBox.style.color = '#10b981';
+                    btnSubmit.disabled = false; btnSubmit.style.opacity = '1';
+                } else if (diferenciaUsd > 0) {
+                    mensajeBox.innerHTML = `⚠️ Faltan por justificar: <b>$${diferenciaUsd.toFixed(2)}</b> o <b>${diferenciaBs.toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2})} Bs</b>`;
+                    mensajeBox.style.color = '#f59e0b';
+                    btnSubmit.disabled = true; btnSubmit.style.opacity = '0.5';
+                } else {
+                    let sobraUsd = Math.abs(diferenciaUsd);
+                    let sobraBs = Math.abs(diferenciaBs);
+                    mensajeBox.innerHTML = `❌ Sobregiro. Estás justificando vuelto de más por: <b>$${sobraUsd.toFixed(2)}</b> o <b>${sobraBs.toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2})} Bs</b>`;
+                    mensajeBox.style.color = '#ef4444';
+                    btnSubmit.disabled = true; btnSubmit.style.opacity = '0.5';
+                }
             }
         }
 
