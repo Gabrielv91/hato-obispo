@@ -96,7 +96,7 @@ try {
         if (count($partes_imagen) == 2) {
             $datos_imagen = base64_decode($partes_imagen[1]);
             $nombre_archivo = $directorio . 'evidencia_ticket_' . $venta_id . '_' . time() . '.jpg';
-            file_put_contents($nombre_archivo, $datos_imagen);
+            @file_put_contents($nombre_archivo, $datos_imagen);
             $stmt_foto = $conexion->prepare("UPDATE ventas SET foto_evidencia = ? WHERE id = ?");
             $stmt_foto->bind_param("si", $nombre_archivo, $venta_id);
             $stmt_foto->execute(); $stmt_foto->close();
