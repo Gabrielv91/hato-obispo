@@ -1,6 +1,6 @@
 {
-  "name": "AgroTienda el Hato",
-  "short_name": "AgroTienda el Hato",
+  "name": "AgroTienda el Hato Obispo",
+  "short_name": "AgroTienda el Hato Obispo",
   "description": "Sistema de Punto de Venta y Gestión",
   "start_url": "./index.php",
   "display": "standalone",

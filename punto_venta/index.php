@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             padding: 2.5rem 2rem;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
-            border-top: 6px solid #9a3412; /* Color Terracota cálido del logo */
+            border-top: 6px solid #12269a; /* Color Terracota cálido del logo */
             width: 100%;
             max-width: 420px; 
             box-sizing: border-box;
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .subtitulo-agro {
             font-size: 0.75rem;
             font-weight: bold;
-            color: #b45309;
+            color: #0914b4;
             letter-spacing: 1px;
             margin-top: 0.5rem;
         }
@@ -185,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
 
         <div class="encabezado-bienvenida">
-            <h3>¡Bienvenido al Hato!</h3>
+            <h3>¡Bienvenido al Hato Obispo!</h3>
             <p>Ingresa tus credenciales para iniciar el turno.</p>
         </div>
 
