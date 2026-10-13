@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         .btn-ingresar {
             width: 100%;
-            background: #9a3412; /* Terracota oscuro estilo Agrotienda */
+            background: #20129a; /* Terracota oscuro estilo Agrotienda */
             color: white;
             border: none;
             padding: 1rem;
@@ -161,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-top: 0.5rem;
         }
         .btn-ingresar:hover {
-            background: #7c2d12;
+            background: #20129a;
         }
         .btn-ingresar:active {
             transform: scale(0.98);
