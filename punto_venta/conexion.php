@@ -2,12 +2,12 @@
 // 1. OBLIGAR A PHP A USAR EL HORARIO DE CARACAS (Evita que registre ventas al día siguiente si trabajas de noche)
 date_default_timezone_set('America/Caracas');
 
-$host = "localhost";
-$user = "root";
-$password = ""; // Por defecto en XAMPP viene vacío
-$database = "punto_venta";
+$host = getenv('DB_HOST') ?: 'localhost';
+$usuario = getenv('DB_USER') ?: 'root';
+$clave = getenv('DB_PASSWORD') ?: ''; // Clave de tu PC local
+$base_datos = getenv('DB_NAME') ?: 'punto_venta';
 
-$conexion = new mysqli($host, $user, $password, $database);
+$conexion = new mysqli($host, $usuario, $clave, $base_datos);
 
 // Verificar si hay errores de conexión
 if ($conexion->connect_error) {
