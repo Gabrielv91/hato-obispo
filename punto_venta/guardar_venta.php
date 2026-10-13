@@ -157,12 +157,12 @@ try {
     }
 
     $conexion->commit();
-    ob_clean(); 
+    @ob_clean(); 
     echo json_encode(["exito" => true, "mensaje" => "Venta registrada con éxito.", "id_venta" => $venta_id]);
 
 } catch (Exception $e) {
     $conexion->rollback();
-    ob_clean(); 
+    @ob_clean(); 
     echo json_encode(["exito" => false, "mensaje" => "Error interno: " . $e->getMessage()]);
 }
 ?>
