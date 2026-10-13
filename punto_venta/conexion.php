@@ -1,22 +1,23 @@
 <?php
-// 1. OBLIGAR A PHP A USAR EL HORARIO DE CARACAS (Evita que registre ventas al día siguiente si trabajas de noche)
+// 1. OBLIGAR A PHP A USAR EL HORARIO DE CARACAS
 date_default_timezone_set('America/Caracas');
 
-$host = getenv('DB_HOST') ?: 'localhost';
-$usuario = getenv('DB_USER') ?: 'root';
-$clave = getenv('DB_PASSWORD') ?: ''; // Clave de tu PC local
-$base_datos = getenv('DB_NAME') ?: 'punto_venta';
+// 2. CONEXIÓN INTELIGENTE (Lee de Easypanel en la nube, o usa XAMPP en tu PC)
+$host     = getenv('DB_HOST') ?: "localhost";
+$user     = getenv('DB_USER') ?: "root";
+$password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : "";
+$database = getenv('DB_NAME') ?: "punto_venta";
 
-$conexion = new mysqli($host, $usuario, $clave, $base_datos);
+$conexion = new mysqli($host, $user, $password, $database);
 
 // Verificar si hay errores de conexión
 if ($conexion->connect_error) {
     die("Error de conexión a la base de datos: " . $conexion->connect_error);
 }
 
-// Configurar el conjunto de caracteres a UTF-8 para evitar problemas con acentos o eñes
+// Configurar juego de caracteres
 $conexion->set_charset("utf8");
 
-// 2. OBLIGAR A MYSQL A INDIZAR CON EL MISMO HORARIO (UTC-4 de Venezuela)
+// 3. OBLIGAR A MYSQL A USAR EL HORARIO CARACAS (-04:00)
 $conexion->query("SET time_zone = '-04:00'");
 ?>
